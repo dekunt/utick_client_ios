@@ -146,6 +146,7 @@
 - (void)view:(UIView *)view turnAround:(CGFloat)angle
 {
     if (angle == 0) {
+        Log_Err(@"angle == 0");
         return;
     }
     CGFloat duration = 360.0f / ABS(angle);

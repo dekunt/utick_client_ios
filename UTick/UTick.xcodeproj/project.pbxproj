@@ -24,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		57940B2A1B12286000062983 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		9F67B6B31B10683200192A11 /* 线圈.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "线圈.png"; sourceTree = "<group>"; };
 		9FC923011B0F4C5C005C98A3 /* UTick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UTick.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FC923051B0F4C5C005C98A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -92,6 +93,7 @@
 			children = (
 				9FC923051B0F4C5C005C98A3 /* Info.plist */,
 				9FC923061B0F4C5C005C98A3 /* main.m */,
+				57940B2A1B12286000062983 /* PrefixHeader.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -303,7 +305,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = UTick/UTick.pch;
+				GCC_PREFIX_HEADER = UTick/PrefixHeader.pch;
 				INFOPLIST_FILE = UTick/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -317,7 +319,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = UTick/UTick.pch;
+				GCC_PREFIX_HEADER = UTick/PrefixHeader.pch;
 				INFOPLIST_FILE = UTick/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
