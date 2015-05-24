@@ -13,5 +13,7 @@
 @property (strong, nonatomic) UIWindow *window;
 
 
+- (void)addHandlerForEnterBackground:(void (^)())handler;
+- (void)addHandlerForEnterForeground:(void (^)())handler;
 @end
 

@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "AppDelegate.h"
 
 #define FONT_WITH_SIZE(sizeValue)       [UIFont fontWithName:@"OCRAStd" size:(sizeValue)]
 
@@ -21,8 +22,15 @@
 @property (weak, nonatomic) IBOutlet UILabel *minuteLabel;
 
 @property (strong, nonatomic) NSTimer *timer;
-@property (nonatomic) BOOL notFirstLoad;
 @property (nonatomic) BOOL isTilted;
+
+
+@property (nonatomic) CGRect frame1;
+@property (nonatomic) CGRect frame2;
+@property (nonatomic) CGRect frame3;
+@property (nonatomic) CGRect frame4;
+@property (nonatomic) CGRect frame5;
+@property (nonatomic) CGRect frame6;
 @end
 
 @implementation ViewController
@@ -30,39 +38,83 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    AppDelegate *appDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    [appDelegate addHandlerForEnterBackground:^{
+        [self onEnterBackground];
+    }];
+    [appDelegate addHandlerForEnterForeground:^{
+        [self onEnterForefround];
+    }];
+    
+    _frame1 = self.tick6View.frame;
+    _frame2 = self.outView.frame;
+    _frame3 = self.innerView.frame;
+    _frame4 = self.ssView.frame;
+    _frame5 = self.hourLabel.frame;
+    _frame6 = self.minuteLabel.frame;
     [self updateTime];
-    self.isTilted = NO;
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    if (_notFirstLoad)
-        return;
-    _notFirstLoad = YES;
+    [self onEnterForefround];
+}
+
+- (void)onEnterForefround
+{
+    self.isTilted = NO;
     
     [self animating:1];
     [self beginTilt];
-//    [self performSelector:@selector(beginTilt) withObject:nil afterDelay:4];
+//    [self performSelector:@selector(beginTilt) withObject:nil afterDelay:2.9];
 }
 
+- (void)onEnterBackground
+{
+    [self.tick6View.layer removeAllAnimations];
+    [self.outView.layer removeAllAnimations];
+    [self.innerView.layer removeAllAnimations];
+    [self.ssView.layer removeAllAnimations];
+    [self.hourLabel.layer removeAllAnimations];
+    [self.minuteLabel.layer removeAllAnimations];
+
+    self.tick6View.frame = _frame1;
+    self.innerView.frame = _frame3;
+    self.ssView.frame = _frame4;
+    self.hourLabel.frame = _frame5;
+    self.minuteLabel.frame = _frame6;
+    
+    self.tick6View.transform = CGAffineTransformIdentity;
+    self.outView.transform = CGAffineTransformIdentity;
+    self.innerView.transform = CGAffineTransformIdentity;
+    self.ssView.transform = CGAffineTransformIdentity;
+}
 
 - (void)beginTilt
 {
-    [UIView animateWithDuration:1 animations:^{
+    [UIView animateWithDuration:2 animations:^{
         
 //        self.isTilted = YES;
-        CGRect frame = self.tick6View.frame;
-        frame.origin.y -= 90;
+        CGRect frame = _frame1;
+        frame.origin.y -= 120;
         self.tick6View.frame = frame;
         
-        frame = self.innerView.frame;
-        frame.origin.y -= 60;
+        frame = _frame3;
+        frame.origin.y -= 80;
         self.innerView.frame = frame;
         
-        frame = self.ssView.frame;
-        frame.origin.y -= 30;
+        frame = _frame4;
+        frame.origin.y -= 40;
         self.ssView.frame = frame;
+        
+        frame = _frame5;
+        frame.origin.y -= 150;
+        self.hourLabel.frame = frame;
+        
+        frame = _frame6;
+        frame.origin.y -= 150;
+        self.minuteLabel.frame = frame;
         
         CATransform3D transform = CATransform3DMakeRotation(1.2, 1, 0, 0);
         self.tick6View.layer.transform = transform;
@@ -70,15 +122,21 @@
         self.innerView.layer.transform = transform;
         self.ssView.layer.transform = transform;
     }completion:^(BOOL finished) {
+        if (!finished)
+            return;
         self.isTilted = YES;
-        [self turnAround:1];
+        
+        [self view:self.ssView turnAround:M_PI_2 * 0.25 step:1];
+        [self view:self.tick6View turnAround:M_PI_2 step:1];
+        [self view:self.outView turnAround:-M_PI_2 step:1];
+        [self view:self.innerView turnAround:-M_PI_2 * 0.25 step:1];
     }];
 }
 
 
 - (void)animating:(int)step
 {
-    [UIView animateWithDuration:1 delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
+    [UIView animateWithDuration:2 delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
         
         if (_isTilted)
             return;
@@ -88,24 +146,25 @@
         self.innerView.transform = transform;
         self.ssView.transform = transform;
     } completion:^(BOOL finished) {
-        if (_isTilted)
+        if (_isTilted || !finished)
             return;
         [self animating:step % 4 + 1];
     }];
 }
 
-- (void)turnAround:(int)step
+- (void)view:(UIView *)view turnAround:(CGFloat)angle step:(int)step
 {
     [UIView animateWithDuration:1 delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
         
         CATransform3D transform = CATransform3DMakeRotation(1.2, 1, 0, 0);
-        transform = CATransform3DRotate(transform, M_PI_2 * step, 0, 0, 1);
-        self.tick6View.layer.transform = transform;
-        self.outView.layer.transform = transform;
-        self.innerView.layer.transform = transform;
-        self.ssView.layer.transform = transform;
+        transform = CATransform3DRotate(transform, angle * step, 0, 0, 1);
+        view.layer.transform = transform;
+        
     } completion:^(BOOL finished) {
-        [self turnAround:step % 4 + 1];
+        
+        if (!finished)
+            return;
+        [self view:view turnAround:angle step:(step % (int)(M_PI * 2 / ABS(angle)) + 1)];
     }];
 }
 

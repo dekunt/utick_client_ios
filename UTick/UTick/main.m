@@ -2,7 +2,7 @@
 //  main.m
 //  UTick
 //
-//  Created by 谭德昆 on 15/5/22.
+//  Created by dekunt on 15/5/22.
 //  Copyright (c) 2015年 MeU. All rights reserved.
 //
 
