@@ -13,6 +13,7 @@
 
 
 @interface ViewController ()
+@property (weak, nonatomic) IBOutlet UIView *clockView;
 @property (weak, nonatomic) IBOutlet UIImageView *outView;
 @property (weak, nonatomic) IBOutlet UIImageView *innerView;
 @property (weak, nonatomic) IBOutlet UIImageView *ssView;
@@ -22,7 +23,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *minuteLabel;
 
 @property (strong, nonatomic) NSTimer *timer;
-@property (nonatomic) BOOL isTilted;
 
 
 @property (nonatomic) CGRect frame1;
@@ -63,15 +63,16 @@
 
 - (void)onEnterForefround
 {
-    self.isTilted = NO;
-    
-    [self animating:1];
-    [self beginTilt];
-//    [self performSelector:@selector(beginTilt) withObject:nil afterDelay:2.9];
+    [self view:self.ssView turnAround:20];
+    [self view:self.tick6View turnAround:90];
+    [self view:self.outView turnAround:-90];
+    [self view:self.innerView turnAround:-20];
+    [self performSelector:@selector(beginTilt) withObject:nil afterDelay:0.3];
 }
 
 - (void)onEnterBackground
 {
+    [self.clockView.layer removeAllAnimations];
     [self.tick6View.layer removeAllAnimations];
     [self.outView.layer removeAllAnimations];
     [self.innerView.layer removeAllAnimations];
@@ -85,6 +86,7 @@
     self.hourLabel.frame = _frame5;
     self.minuteLabel.frame = _frame6;
     
+    self.clockView.transform = CGAffineTransformIdentity;
     self.tick6View.transform = CGAffineTransformIdentity;
     self.outView.transform = CGAffineTransformIdentity;
     self.innerView.transform = CGAffineTransformIdentity;
@@ -94,80 +96,68 @@
 - (void)beginTilt
 {
     [UIView animateWithDuration:2 animations:^{
+        CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
+        self.clockView.transform = transform;
+    }];
+    [UIView animateWithDuration:2 animations:^{
         
-//        self.isTilted = YES;
         CGRect frame = _frame1;
-        frame.origin.y -= 120;
+        frame.origin.y -= 360;
         self.tick6View.frame = frame;
         
         frame = _frame3;
-        frame.origin.y -= 80;
+        frame.origin.y -= 240;
         self.innerView.frame = frame;
         
         frame = _frame4;
-        frame.origin.y -= 40;
+        frame.origin.y -= 120;
         self.ssView.frame = frame;
         
-        frame = _frame5;
-        frame.origin.y -= 150;
+        CATransform3D transform = CATransform3DMakeRotation(1.2, 1, 0, 0);
+        self.clockView.layer.transform = transform;
+    }];
+    
+    [UIView animateWithDuration:1.3 animations:^{
+        
+        CGRect frame = _frame5;
+        frame.origin.x += 50;
+        frame.origin.y -= 200;
         self.hourLabel.frame = frame;
         
         frame = _frame6;
-        frame.origin.y -= 150;
+        frame.origin.x += 50;
+        frame.origin.y -= 210;
         self.minuteLabel.frame = frame;
-        
-        CATransform3D transform = CATransform3DMakeRotation(1.2, 1, 0, 0);
-        self.tick6View.layer.transform = transform;
-        self.outView.layer.transform = transform;
-        self.innerView.layer.transform = transform;
-        self.ssView.layer.transform = transform;
-    }completion:^(BOOL finished) {
-        if (!finished)
-            return;
-        self.isTilted = YES;
-        
-        [self view:self.ssView turnAround:M_PI_2 * 0.25 step:1];
-        [self view:self.tick6View turnAround:M_PI_2 step:1];
-        [self view:self.outView turnAround:-M_PI_2 step:1];
-        [self view:self.innerView turnAround:-M_PI_2 * 0.25 step:1];
+    }  completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.6 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            
+            CGRect frame = _frame5;
+            frame.origin.y -= 160;
+            self.hourLabel.frame = frame;
+            
+            frame = _frame6;
+            frame.origin.y -= 160;
+            self.minuteLabel.frame = frame;
+        } completion:nil];
     }];
 }
 
 
-- (void)animating:(int)step
+- (void)view:(UIView *)view turnAround:(CGFloat)angle
 {
-    [UIView animateWithDuration:2 delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
-        
-        if (_isTilted)
-            return;
-        CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_2 * step);
-        self.tick6View.transform = transform;
-        self.outView.transform = transform;
-        self.innerView.transform = transform;
-        self.ssView.transform = transform;
-    } completion:^(BOOL finished) {
-        if (_isTilted || !finished)
-            return;
-        [self animating:step % 4 + 1];
-    }];
+    if (angle == 0) {
+        return;
+    }
+    CGFloat duration = 360.0f / ABS(angle);
+    
+    CABasicAnimation* rotationAnimation;
+    rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+    rotationAnimation.toValue = [NSNumber numberWithFloat: angle > 0 ? M_2_PI : -M_2_PI];
+    rotationAnimation.duration = duration;
+    rotationAnimation.cumulative = YES;
+    rotationAnimation.repeatCount = INT_MAX;
+    [view.layer addAnimation:rotationAnimation forKey:@"rotationAnimation"];
 }
-
-- (void)view:(UIView *)view turnAround:(CGFloat)angle step:(int)step
-{
-    [UIView animateWithDuration:1 delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
-        
-        CATransform3D transform = CATransform3DMakeRotation(1.2, 1, 0, 0);
-        transform = CATransform3DRotate(transform, angle * step, 0, 0, 1);
-        view.layer.transform = transform;
-        
-    } completion:^(BOOL finished) {
-        
-        if (!finished)
-            return;
-        [self view:view turnAround:angle step:(step % (int)(M_PI * 2 / ABS(angle)) + 1)];
-    }];
-}
-
 
 - (void)updateTime
 {
@@ -181,7 +171,7 @@
     [formatter setDateFormat:@"mm"];
     [self.minuteLabel setText:[formatter stringFromDate:time]];
     
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateTime) userInfo:nil repeats:NO];
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(updateTime) userInfo:nil repeats:NO];
 }
 
 

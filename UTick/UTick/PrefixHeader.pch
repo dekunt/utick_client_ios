@@ -1,0 +1,34 @@
+//
+//  PrefixHeader.pch
+//  UTick
+//
+//  Created by dekunt on 15/5/24.
+//  Copyright (c) 2015年 MeU. All rights reserved.
+//
+
+#ifndef UTick_PrefixHeader_pch
+#define UTick_PrefixHeader_pch
+
+
+//#import <Availability.h>
+
+#ifndef __IPHONE_7_0
+#warning "This project uses features only available in iOS SDK 7.0 and later."
+#endif
+
+//#ifdef __OBJC__
+//#import <UIKit/UIKit.h>
+//#import <Foundation/Foundation.h>
+//#endif
+
+#define Log_Record(fmt, ...) NSLog((@"-----Record: %s [File %s: Line %d] -----" fmt), __PRETTY_FUNCTION__, __FILE__, __LINE__, ##__VA_ARGS__)
+#define Log_Operation(fmt, ...) NSLog((@"-----Operation: %s [File %s: Line %d] -----" fmt), __PRETTY_FUNCTION__, __FILE__, __LINE__, ##__VA_ARGS__)
+#define Log_Err(fmt, ...) NSLog((@"-----Error: %s [File %s: Line %d] -----" fmt), __PRETTY_FUNCTION__, __FILE__, __LINE__, ##__VA_ARGS__)s
+
+#ifndef __OPTIMIZE__
+#   define Log_Debug(fmt, ...) NSLog((@"%s [File %s: Line %d] " fmt), __PRETTY_FUNCTION__, __FILE__, __LINE__, ##__VA_ARGS__)
+#else
+#   define Log_Debug(...)
+#endif
+
+#endif
